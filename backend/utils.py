@@ -4,10 +4,16 @@ import pickle
 from transformers import BertTokenizer, BertForSequenceClassification
 
 class TextClassifier:
-    def __init__(self, model_path):
+    def __init__(self, model_path, token):
         # Load model and tokenizer
-        self.model = BertForSequenceClassification.from_pretrained(model_path)
-        self.tokenizer = BertTokenizer.from_pretrained(model_path)
+        self.model = BertForSequenceClassification.from_pretrained(
+            model_path,
+            token=token
+        )
+        self.tokenizer = BertTokenizer.from_pretrained(
+            model_path,
+            token=token
+        )
 
         # Load label encoder
         with open(f'{model_path}/label_encoder.pkl', 'rb') as f:

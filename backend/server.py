@@ -4,6 +4,7 @@ from typing import List, Optional
 from backend.utils import TextClassifier
 from contextlib import asynccontextmanager
 import logging
+import os
 
 # Logger
 logger = logging.getLogger(__name__)
@@ -14,9 +15,10 @@ classifier = None
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     global classifier
-    model_path = "./models/text_classification_bert_model"
+    model_path = os.getenv("MODEL_PATH")
+    token = os.getenv("HF_TOKEN")
     #start up
-    classifier = TextClassifier(model_path)
+    classifier = TextClassifier(model_path, token)
     logger.info(f"Loaded model successfully from path {model_path}")
     yield
     logger.info("Shutting down API...")
