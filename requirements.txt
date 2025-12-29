@@ -1,0 +1,12 @@
+transformers
+torch
+spacy
+streamlit
+fastapi
+uvicorn
+pydantic
+python-multipart
+scikit-learn
+
+# download spaCy model:
+python -m spacy download en_core_web_sm
