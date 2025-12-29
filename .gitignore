@@ -1,0 +1,15 @@
+# Ignore Python bytecode
+__pycache__/
+
+# Ignore .env files
+.env.local
+.env
+
+# Ignore VS code file
+.vscode/
+
+# Trained models
+models/
+
+# Ignore notebook checkpoints
+.ipynb_checkpoints/
