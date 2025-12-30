@@ -77,7 +77,7 @@ class TextClassifier:
         )
 
         # Move to Device
-        inputs = {k : v.to(self.device) for k, v in inputs.items()}
+        inputs = {k: v for k, v in inputs.items()}
 
         # Predict
         with torch.no_grad():
