@@ -11,7 +11,9 @@ class TextClassifier:
         self.model = BertForSequenceClassification.from_pretrained(
             model_path,
             token=token,
-            device_map = None
+            device_map = None,
+            low_cpu_mem_usage=True,
+            torch_dtype=torch.float32
         )
         self.tokenizer = BertTokenizer.from_pretrained(
             model_path,
