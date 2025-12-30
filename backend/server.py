@@ -1,34 +1,17 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from typing import List, Optional
-from backend.utils import TextClassifier
-from contextlib import asynccontextmanager
+from backend.service import predict_text, get_class_metadata
 import logging
-import os
 
 # Logger
 logger = logging.getLogger(__name__)
-
-# Load model on startup
-classifier = None
-
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    global classifier
-    model_path = os.getenv("MODEL_PATH")
-    token = os.getenv("HF_TOKEN")
-    #start up
-    classifier = TextClassifier(model_path, token)
-    logger.info(f"Loaded model successfully from path {model_path}")
-    yield
-    logger.info("Shutting down API...")
 
 # Initialize FastAPI
 app = FastAPI(
     title="Text Classification API",
     description="API for classifying text using fine-tuned BERT model",
-    version="1.0.0",
-    lifespan=lifespan
+    version="1.0.0"
 )
 
 # Request/Response models
@@ -46,27 +29,12 @@ class PredictionResponse(BaseModel):
 # API endpoints
 
 @app.get("/classes")
-async def get_classes():
-    if classifier is None:
-        raise HTTPException(status_code=503, detail="Model not loaded")
-    
-    return {
-        'classes': classifier.label_encoder.classes_.tolist(),
-        'num_classes': len(classifier.label_encoder.classes_)
-    }
+async def classes():
+    return get_class_metadata()
 
-@app.post("/predict", response_model=PredictionResponse)
-async def predict(request: PredictionRequest):
-    if classifier is None:
-        raise HTTPException(status_code=503, detail="Model not loaded")
-    
-    try:
-        result = classifier.predict(request.text, top_k=request.top_k)
-        if 'error' in result:
-            raise HTTPException(status_code=400, detail=result['error'])
-        return result
-    except Exception as e:
-        logger.error(f"Prediction error: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
-
-
+@app.post("/predict")
+async def predict(request: dict):
+    result = predict_text(request)
+    if "error" in result:
+        raise HTTPException(status_code=400, detail=result["error"])
+    return result

@@ -1,6 +1,8 @@
 import torch
 import spacy
 import pickle
+from huggingface_hub import hf_hub_download
+from pathlib import Path
 from transformers import BertTokenizer, BertForSequenceClassification
 
 class TextClassifier:
@@ -16,8 +18,22 @@ class TextClassifier:
         )
 
         # Load label encoder
-        with open(f'{model_path}/label_encoder.pkl', 'rb') as f:
-            self.label_encoder = pickle.load(f)
+        LABEL_ENCODER_FILENAME = "label_encoder.pkl"
+        LOCAL_ENCODER_FILE_PATH = Path(model_path + "/" + LABEL_ENCODER_FILENAME)
+
+        if LOCAL_ENCODER_FILE_PATH.exists():
+            # Local development
+            with open(LOCAL_ENCODER_FILE_PATH, "rb") as f:
+                self.label_encoder = pickle.load(f)
+        else:
+            # Streamlit Cloud
+            downloaded_path = hf_hub_download(
+                repo_id=model_path,
+                filename=LABEL_ENCODER_FILENAME
+            )
+            with open(downloaded_path, "rb") as f:
+                self.label_encoder = pickle.load(f)
+       
 
         # Set up device
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -96,4 +112,3 @@ class TextClassifier:
             'confidence': confidence,
             'all_predictions': all_predictions
         }
-

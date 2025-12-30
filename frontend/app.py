@@ -1,6 +1,19 @@
 import streamlit as st
 import pandas as pd
-import requests
+
+import sys
+from pathlib import Path
+from dotenv import load_dotenv
+
+# Add project root to Python path
+project_root = Path(__file__).resolve().parents[1]
+sys.path.append(str(project_root))
+import os
+print("CWD:", os.getcwd())
+import sys
+print("PYTHONPATH:", sys.path)
+
+load_dotenv()  # silently does nothing if .env is missing
 
 # Page Config
 st.set_page_config(
@@ -8,12 +21,6 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded"
 )
-
-@st.cache_resource(show_spinner="Loading class metadata...")
-def load_classes():
-    response = requests.get("http://localhost:8000/classes")
-    response.raise_for_status()
-    return response.json()
 
 def main():
     # Title
@@ -46,7 +53,7 @@ def main():
             placeholder="Example: I have a problem with my billing statement..."
         )
 
-        col1, col2, col3 = st.columns([1,1,3])
+        col1, col2 = st.columns([1,1])
         with col1:
             predict_button  = st.button("Predict", type="primary", use_container_width=True)
         with col2:
@@ -62,12 +69,8 @@ def main():
                     "top_k": top_k
                 }
                 # Make Prediction
-                response = requests.post(
-                    "http://localhost:8000/predict",
-                    json=payload
-                )
-
-                result = response.json()
+                from backend.service import predict_text
+                result = predict_text(payload)
 
                 if 'error' in result and result['error']:
                     st.error(result['error'])
@@ -98,15 +101,15 @@ def main():
         st.header("Model Statistics")
 
         col1, col2 = st.columns(2)
-
-        class_info = load_classes()
+        from backend.service import get_class_metadata
+        class_info = get_class_metadata()
         class_names = class_info["classes"]
         num_classes = class_info["num_classes"]
 
         with col1:
             st.metric("Number of classes", len(class_names))
         with col2:
-            st.metric("Model Type", "BERT-base")
+            st.metric("Model Type", "BERT-Finetuned")
         
         st.markdown("### 📋 Available Classes")
 
@@ -117,5 +120,6 @@ def main():
 
         st.dataframe(classes_df, use_container_width=True, hide_index=True)
         
+
 if __name__ == "__main__":
     main()
