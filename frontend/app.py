@@ -86,13 +86,13 @@ def main():
                     )
                     st.markdown(f"Confidence: {confidence:.2%}")
 
-                # All predictions
-                st.markdown("### 📋 All Predictions")
-                predictions_df = pd.DataFrame(result['all_predictions'])
-                predictions_df['probability'] = predictions_df['probability'].apply(lambda x: f"{x:.2%}")
+                    # All predictions
+                    st.markdown("### 📋 All Predictions")
+                    predictions_df = pd.DataFrame(result['all_predictions'])
+                    predictions_df['probability'] = predictions_df['probability'].apply(lambda x: f"{x:.2%}")
 
-                # Hide the index
-                st.dataframe(predictions_df, hide_index=True)
+                    # Hide the index
+                    st.dataframe(predictions_df, hide_index=True)
 
         elif predict_button:
             st.warning("⚠️ Please enter some text to classify")

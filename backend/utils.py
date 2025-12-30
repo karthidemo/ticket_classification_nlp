@@ -10,7 +10,8 @@ class TextClassifier:
         # Load model and tokenizer
         self.model = BertForSequenceClassification.from_pretrained(
             model_path,
-            token=token
+            token=token,
+            device_map = None
         )
         self.tokenizer = BertTokenizer.from_pretrained(
             model_path,
@@ -33,6 +34,10 @@ class TextClassifier:
             )
             with open(downloaded_path, "rb") as f:
                 self.label_encoder = pickle.load(f)
+        
+        # Set Device
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.model.to(self.device)
        
         self.model.eval()
 
@@ -77,7 +82,7 @@ class TextClassifier:
         )
 
         # Move to Device
-        inputs = {k: v for k, v in inputs.items()}
+        inputs = {k: v.to(self.device) for k, v in inputs.items()}
 
         # Predict
         with torch.no_grad():
