@@ -34,10 +34,6 @@ class TextClassifier:
             with open(downloaded_path, "rb") as f:
                 self.label_encoder = pickle.load(f)
        
-
-        # Set up device
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        self.model.to(self.device)
         self.model.eval()
 
         # Load spacy
