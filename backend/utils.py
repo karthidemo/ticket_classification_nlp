@@ -41,7 +41,7 @@ class TextClassifier:
         self.model.eval()
 
         # Load spacy
-        self.nlp = spacy.load('en_core_web_lg')
+        self.nlp = spacy.load('en_core_web_sm')
 
     def preprocess_text(self, text):
         if not text or not isinstance(text, str):
